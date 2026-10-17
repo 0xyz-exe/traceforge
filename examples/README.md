@@ -56,7 +56,39 @@ curl "http://localhost:8000/api/metrics/query?service=example-python-app&metric=
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-Or view in dashboard: http://localhost:3000/services
+## Query Logs
+
+```bash
+# Search all logs
+curl "http://localhost:8000/api/logs?start=2026-10-17T12:00:00Z&end=2026-10-17T14:00:00Z" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# Filter by severity
+curl "http://localhost:8000/api/logs?start=2026-10-17T12:00:00Z&end=2026-10-17T14:00:00Z&severity=ERROR" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# Search text
+curl "http://localhost:8000/api/logs?start=2026-10-17T12:00:00Z&end=2026-10-17T14:00:00Z&search=timeout" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+## Query Traces
+
+```bash
+# List traces
+curl "http://localhost:8000/api/traces?start=2026-10-17T12:00:00Z&end=2026-10-17T14:00:00Z" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# Filter by status
+curl "http://localhost:8000/api/traces?start=2026-10-17T12:00:00Z&end=2026-10-17T14:00:00Z&status=error" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# Get trace detail
+curl "http://localhost:8000/api/traces/trace12345" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+Or view in dashboard: http://localhost:3000
 
 ## OpenTelemetry Integration (Future)
 
