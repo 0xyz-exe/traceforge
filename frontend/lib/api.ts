@@ -145,3 +145,111 @@ export const tracesApi = {
   
   get: (trace_id: string) => api.get<TraceDetail>(`/traces/${trace_id}`),
 }
+
+// Alert Rules
+export interface AlertRule {
+  id: string
+  name: string
+  description: string | null
+  service: string | null
+  condition_type: string
+  metric_name: string | null
+  threshold: number | null
+  comparison: string | null
+  aggregation: string | null
+  window_seconds: number
+  severity: 'warning' | 'critical'
+  enabled: boolean
+  cooldown_seconds: number
+  created_at: string
+}
+
+export interface AlertRulesListResponse {
+  rules: AlertRule[]
+  total: number
+}
+
+export interface AlertRuleCreate {
+  name: string
+  description?: string
+  service?: string
+  condition_type: 'metric_threshold' | 'error_rate' | 'missing_telemetry'
+  metric_name?: string
+  threshold?: number
+  comparison?: 'gt' | 'lt' | 'gte' | 'lte' | 'eq'
+  aggregation?: 'avg' | 'sum' | 'min' | 'max' | 'count' | 'p50' | 'p95' | 'p99'
+  window_seconds?: number
+  severity: 'warning' | 'critical'
+  cooldown_seconds?: number
+}
+
+export interface AlertEvent {
+  id: string
+  alert_rule_id: string
+  rule_name: string
+  state: 'firing' | 'resolved'
+  severity: 'warning' | 'critical'
+  message: string
+  details: Record<string, any>
+  fired_at: string
+  resolved_at: string | null
+}
+
+export interface AlertEventsListResponse {
+  events: AlertEvent[]
+  total: number
+  limit: number
+}
+
+export interface Incident {
+  id: string
+  title: string
+  description: string | null
+  severity: 'warning' | 'critical'
+  status: 'open' | 'acknowledged' | 'resolved'
+  assigned_to: string | null
+  created_by: string | null
+  started_at: string
+  acknowledged_at: string | null
+  resolved_at: string | null
+  resolution_notes: string | null
+  metadata: Record<string, any>
+  timeline: IncidentTimelineEntry[]
+}
+
+export interface IncidentTimelineEntry {
+  id: string
+  event_type: string
+  message: string
+  created_by: string | null
+  created_at: string
+}
+
+export interface IncidentsListResponse {
+  incidents: Incident[]
+  total: number
+  limit: number
+}
+
+export const alertsApi = {
+  listRules: () => api.get<AlertRulesListResponse>('/alerts/rules'),
+  
+  createRule: (data: AlertRuleCreate) => api.post<AlertRule>('/alerts/rules', data),
+  
+  updateRule: (id: string, data: Partial<AlertRuleCreate>) => 
+    api.patch<AlertRule>(`/alerts/rules/${id}`, data),
+  
+  deleteRule: (id: string) => api.delete(`/alerts/rules/${id}`),
+  
+  listEvents: (params?: { state?: string; limit?: number; offset?: number }) =>
+    api.get<AlertEventsListResponse>('/alerts/events', { params }),
+  
+  listIncidents: (params?: { status?: string; limit?: number; offset?: number }) =>
+    api.get<IncidentsListResponse>('/alerts/incidents', { params }),
+  
+  createIncident: (data: { title: string; description?: string; severity: string; alert_event_id?: string }) =>
+    api.post<Incident>('/alerts/incidents', data),
+  
+  updateIncident: (id: string, data: { status?: string; assigned_to?: string; resolution_notes?: string }) =>
+    api.patch<Incident>(`/alerts/incidents/${id}`, data),
+}
