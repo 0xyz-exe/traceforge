@@ -29,6 +29,101 @@ Open-source developer observability platform for monitoring applications, invest
 
 ## Quick Start
 
+### Prerequisites
+- Python 3.10+
+- Node.js 18+
+- PostgreSQL 15+ (or SQLite for development)
+
+### Backend Setup
+
+```bash
+cd backend
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Create environment file
+cp .env.example .env
+# Edit .env and set:
+#   DATABASE_URL=postgresql://user:pass@localhost:5432/traceforge
+#   SECRET_KEY=<generate-random-secret>
+
+# Run database migrations
+alembic upgrade head
+
+# Start server
+uvicorn app.main:app --reload
+```
+
+Backend will be available at http://localhost:8000
+
+### Frontend Setup
+
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Create environment file
+cp .env.local.example .env.local
+# Edit .env.local:
+#   NEXT_PUBLIC_API_URL=http://localhost:8000/api
+
+# Start development server
+npm run dev
+```
+
+Frontend will be available at http://localhost:3000
+
+### Testing
+
+```bash
+# Backend tests
+cd backend
+pip install -r requirements-test.txt
+pytest
+
+# Frontend tests (when added)
+cd frontend
+npm test
+```
+
+### Example Usage
+
+1. **Register a user:**
+```bash
+curl -X POST http://localhost:8000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "password123",
+    "full_name": "Test User",
+    "workspace_name": "My Workspace"
+  }'
+```
+
+2. **Login and get JWT:**
+```bash
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "password123"}'
+```
+
+3. **Send metrics (use workspace_id from register response):**
+```bash
+cd examples
+export API_KEY="<workspace_id>:secret"
+python python_metrics.py
+```
+
+4. **Open dashboard:**
+Visit http://localhost:3000 and explore services, logs, traces, alerts, and incidents.
+
 ## Repository Structure
 
 ```
