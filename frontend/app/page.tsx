@@ -25,6 +25,18 @@ export default function Home() {
         >
           View Traces
         </Link>
+        <Link 
+          href="/alerts" 
+          className="px-6 py-3 bg-card border border-border rounded hover:bg-background"
+        >
+          Alerts
+        </Link>
+        <Link 
+          href="/incidents" 
+          className="px-6 py-3 bg-card border border-border rounded hover:bg-background"
+        >
+          Incidents
+        </Link>
       </div>
     </div>
   )
