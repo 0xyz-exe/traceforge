@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
-from .routes import auth, services, ingest, metrics
+from .routes import auth, services, ingest, metrics, logs, traces
 
 app = FastAPI(
     title="TraceForge API",
@@ -23,6 +23,8 @@ app.include_router(auth.router, prefix="/api/auth")
 app.include_router(services.router, prefix="/api")
 app.include_router(ingest.router, prefix="/api")
 app.include_router(metrics.router, prefix="/api")
+app.include_router(logs.router, prefix="/api")
+app.include_router(traces.router, prefix="/api")
 
 @app.get("/")
 def root():
