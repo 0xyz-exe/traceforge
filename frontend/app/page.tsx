@@ -13,6 +13,18 @@ export default function Home() {
         >
           View Services
         </Link>
+        <Link 
+          href="/logs" 
+          className="px-6 py-3 bg-card border border-border rounded hover:bg-background"
+        >
+          View Logs
+        </Link>
+        <Link 
+          href="/traces" 
+          className="px-6 py-3 bg-card border border-border rounded hover:bg-background"
+        >
+          View Traces
+        </Link>
       </div>
     </div>
   )
