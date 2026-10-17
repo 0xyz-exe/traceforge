@@ -1,103 +1,131 @@
 # TraceForge
 
-Open-source developer observability platform for monitoring applications, investigating failures, analyzing performance, and managing incidents.
+TraceForge is an open-source developer observability dashboard for collecting
+and investigating service metrics, structured logs, traces, alerts, and
+incidents.
 
-**Status:** Milestone B (Metrics Foundation) - In Progress
+> **Project status:** Functional local MVP. The project is suitable for local
+> development and evaluation, but it is not production-ready.
 
-## Features (Current)
+## Features
 
-✅ **Service Registry**
-- Register services with environment and version
-- Track last telemetry timestamp
-- Health status: healthy, stale, down
+- User registration and JWT login
+- Workspace-scoped service registry
+- Add services from the dashboard or register them through telemetry ingestion
+- Metrics ingestion with validation, seven-day in-memory retention, and a
+  1,000-series cardinality limit
+- Metric queries with sum, average, minimum, maximum, count, p50, p95, and p99
+  aggregation
+- Structured log ingestion and search
+- Trace and span ingestion with trace detail and waterfall views
+- Alert rules, alert events, and incident management
+- Next.js dashboard with dark theme and React Query caching
+- SQLite by default for local development, with PostgreSQL support available
 
-✅ **Metrics Ingestion**
-- HTTP endpoint for time-series metrics
-- In-memory storage (7-day retention)
-- Cardinality limits (1000 series max)
-- Timestamp and value validation
+## Requirements
 
-✅ **Metrics Query**
-- Aggregation: sum, avg, min, max, p50, p95, p99
-- Time-range filtering
-- Label filtering
+- Python 3.11 or newer
+- Node.js 18 or newer
+- npm
+- PostgreSQL 15 or newer (optional)
+- Docker (optional)
 
-✅ **Dashboard**
-- Service list with health badges
-- Dark mode UI
-- React Query caching
+## Quick start
 
-## Quick Start
+### 1. Start the backend
 
-### Prerequisites
-- Python 3.10+
-- Node.js 18+
-- PostgreSQL 15+ (or SQLite for development)
+From the repository root:
 
-### Backend Setup
+#### Windows PowerShell
+
+```powershell
+cd backend
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+Copy-Item .env.example .env
+uvicorn app.main:app --reload --port 8000
+```
+
+#### macOS/Linux
 
 ```bash
 cd backend
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install dependencies
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-
-# Create environment file
 cp .env.example .env
-# Edit .env and set:
-#   DATABASE_URL=postgresql://user:pass@localhost:5432/traceforge
-#   SECRET_KEY=<generate-random-secret>
-
-# Run database migrations
-alembic upgrade head
-
-# Start server
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --port 8000
 ```
 
-Backend will be available at http://localhost:8000
+The default configuration uses SQLite and creates `backend/traceforge.db`
+automatically. No database server or migration command is required for the
+default local setup.
 
-### Frontend Setup
+The backend is available at:
 
-```bash
+- API: http://127.0.0.1:8000
+- Swagger UI: http://127.0.0.1:8000/docs
+- Health check: http://127.0.0.1:8000/health
+
+If port 8000 is already in use, start the backend on another port:
+
+```powershell
+uvicorn app.main:app --reload --port 8002
+```
+
+Then set the matching URL in `frontend/.env.local`, for example:
+
+```env
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8002/api
+```
+
+### 2. Start the frontend
+
+In a second terminal:
+
+```powershell
 cd frontend
-
-# Install dependencies
 npm install
-
-# Create environment file
-cp .env.local.example .env.local
-# Edit .env.local:
-#   NEXT_PUBLIC_API_URL=http://localhost:8000/api
-
-# Start development server
+Copy-Item .env.local.example .env.local
 npm run dev
 ```
 
-Frontend will be available at http://localhost:3000
+On macOS/Linux, use `cp .env.local.example .env.local` instead of
+`Copy-Item`.
 
-### Testing
+The dashboard is available at http://localhost:3000.
+
+Open `/login` to create a workspace or sign in.
+
+## Register a service
+
+After signing in:
+
+1. Open http://localhost:3000/services.
+2. Select **+ Add service**.
+3. Enter the service name, environment, and optional version.
+4. Select **Register service**.
+
+Services can also be created through the API:
 
 ```bash
-# Backend tests
-cd backend
-pip install -r requirements-test.txt
-pytest
-
-# Frontend tests (when added)
-cd frontend
-npm test
+curl -X POST http://127.0.0.1:8000/api/services \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "api-gateway",
+    "environment": "development",
+    "version": "1.0.0"
+  }'
 ```
 
-### Example Usage
+## Authentication API
 
-1. **Register a user:**
+Register a user and workspace:
+
 ```bash
-curl -X POST http://localhost:8000/api/auth/register \
+curl -X POST http://127.0.0.1:8000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "user@example.com",
@@ -107,39 +135,89 @@ curl -X POST http://localhost:8000/api/auth/register \
   }'
 ```
 
-2. **Login and get JWT:**
+Sign in:
+
 ```bash
-curl -X POST http://localhost:8000/api/auth/login \
+curl -X POST http://127.0.0.1:8000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com", "password": "password123"}'
+  -d '{
+    "email": "user@example.com",
+    "password": "password123"
+  }'
 ```
 
-3. **Send metrics (use workspace_id from register response):**
+Use the returned `access_token` as a Bearer token for dashboard API requests.
+
+## Telemetry ingestion
+
+Telemetry ingestion uses an API key in the format
+`workspace_id:secret` through the `X-API-Key` header. The current MVP validates
+the workspace portion of the key; production deployments must replace this
+with securely generated and hashed API keys.
+
+Example metric request:
+
 ```bash
-cd examples
-export API_KEY="<workspace_id>:secret"
-python python_metrics.py
+curl -X POST http://127.0.0.1:8000/api/ingest/metrics \
+  -H "X-API-Key: WORKSPACE_ID:secret" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "service": "api-gateway",
+    "metrics": [{
+      "name": "http.requests.total",
+      "type": "counter",
+      "value": 1,
+      "labels": {"method": "GET"}
+    }]
+  }'
 ```
 
-4. **Open dashboard:**
-Visit http://localhost:3000 and explore services, logs, traces, alerts, and incidents.
+More Python and Node.js examples are available in [`examples/`](examples/).
 
-## Repository Structure
+## Testing
 
+### Backend
+
+```powershell
+cd backend
+pip install -r requirements-test.txt
+pytest
 ```
+
+### Frontend
+
+```powershell
+cd frontend
+npm run build
+```
+
+## PostgreSQL
+
+SQLite is recommended for local development. To use PostgreSQL:
+
+1. Set `DATABASE_URL` in `backend/.env`.
+2. Start PostgreSQL.
+3. Run the migrations from the `backend` directory:
+
+```bash
+alembic upgrade head
+```
+
+Example database URL:
+
+```env
+DATABASE_URL=postgresql://traceforge:traceforge@localhost:5432/traceforge
+```
+
+## Repository structure
+
+```text
 .
-├── backend/       Telemetry ingestion, storage, queries
-├── frontend/      Observability dashboard
-├── docs/          Architecture, PRD, security
-└── examples/      Sample instrumented apps
+├── backend/       FastAPI API, ingestion, storage, and business logic
+├── frontend/      Next.js observability dashboard
+├── docs/          Product, architecture, API, and security documentation
+└── examples/      Python and Node.js telemetry examples
 ```
-
-## Prerequisites
-
-- Python 3.11+
-- Node.js 18+
-- PostgreSQL 15+ (or SQLite for local MVP)
-- Docker (optional)
 
 ## Documentation
 
@@ -149,69 +227,38 @@ Visit http://localhost:3000 and explore services, logs, traces, alerts, and inci
 - [API Specification](docs/API.md)
 - [UI/UX Brief](docs/UI_UX_BRIEF.md)
 - [Threat Model](docs/THREAT_MODEL.md)
+- [Backend setup](backend/README.md)
+- [Frontend setup](frontend/README.md)
+- [Telemetry examples](examples/README.md)
 
-## Development Status
+## Known limitations
 
-### Milestone A: Discovery ✅
-- PRD, architecture, DB design, API spec, threat model, UI/UX brief
-
-### Milestone B: Metrics Foundation (In Progress)
-- [x] Service registry endpoints
-- [x] Metrics ingestion
-- [x] In-memory time-series store
-- [x] Metrics query with aggregation
-- [x] Service health dashboard
-- [ ] End-to-end test
-- [ ] Instrumentation examples
-
-### Milestone C: Logs and Traces
-- Structured log ingestion
-- Log search
-- Trace ingestion and waterfall
-- Cross-telemetry correlation
-
-### Milestone D: Alerting and Incidents
-- Alert rules and evaluation
-- Alert history
-- Incident management
-- Timeline and resolution
-
-### Milestone E: Operational Hardening
-- Retention policies
-- Access control
-- Resource limits
-- E2E tests with Playwright
-
-### Milestone F: Optional AI
-- Provider abstraction
-- Evidence-based incident summaries
-- Prompt injection defenses
-
-## Known Limitations (MVP)
-
-- In-memory metrics (lost on restart)
-- Single-instance deployment
-- No horizontal scaling
-- 7-day retention default
-- API key format not hashed (MVP)
+- Metrics are stored in memory and are lost when the backend restarts.
+- The MVP is designed for a single backend instance.
+- Default telemetry retention is seven days.
+- API keys are not hashed yet.
+- OpenTelemetry Protocol support is planned but not implemented.
+- No production deployment, horizontal scaling, or managed authentication
+  workflow is included yet.
 
 ## Security
 
-⚠️ **This is early development. Not production-ready.**
+This project is intended for local development and evaluation.
 
-- Change SECRET_KEY in `.env` before any use
-- Use HTTPS in production
-- Never commit `.env` files
-- Review [THREAT_MODEL.md](docs/THREAT_MODEL.md)
-
-## License
-
-TBD
+- Never commit `.env` or `.env.local` files.
+- Set a strong, unique `SECRET_KEY` before sharing a deployment.
+- Use HTTPS in production.
+- Review [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) before exposing the API.
 
 ## Contributing
 
-Issues and PRs welcome. Include tests for behavioral changes.
+Issues and pull requests are welcome. Include or update tests for behavioral
+changes and explain setup changes in the relevant documentation.
+
+## License
+
+License to be determined.
 
 ---
 
-**Built with:** FastAPI, Next.js, PostgreSQL, TypeScript, Tailwind CSS
+Built with FastAPI, SQLAlchemy, Next.js, React, TypeScript, and Tailwind CSS.

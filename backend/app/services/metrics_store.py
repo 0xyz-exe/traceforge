@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from threading import Lock
 from typing import Dict, List, Tuple
 import statistics
@@ -22,6 +22,7 @@ class MetricsStore:
     def ingest(self, workspace_id: str, service: str, metric: str, value: float, 
                timestamp: datetime, labels: Dict[str, str]) -> bool:
         """Store metric data point. Returns True if accepted."""
+        timestamp = self._as_naive_utc(timestamp)
         if not self._validate_value(value):
             return False
         
@@ -45,6 +46,8 @@ class MetricsStore:
     def query(self, workspace_id: str, service: str, metric: str, 
               start: datetime, end: datetime, labels: Dict[str, str] = None) -> List[Tuple[datetime, float]]:
         """Query metric data points in time range"""
+        start = self._as_naive_utc(start)
+        end = self._as_naive_utc(end)
         results = []
         
         with self._lock:
@@ -94,6 +97,11 @@ class MetricsStore:
         one_year_ago = now - timedelta(days=365)
         # Not in future, not more than 1 year old
         return one_year_ago <= ts <= now + timedelta(minutes=5)
+
+    def _as_naive_utc(self, timestamp: datetime) -> datetime:
+        if timestamp.tzinfo is None:
+            return timestamp
+        return timestamp.astimezone(timezone.utc).replace(tzinfo=None)
     
     def _cleanup_series(self, series_key: str):
         """Remove old data points beyond retention"""

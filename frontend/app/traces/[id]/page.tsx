@@ -5,6 +5,8 @@ import { tracesApi, Span } from '@/lib/api'
 import Link from 'next/link'
 import { use } from 'react'
 
+type SpanNode = Span & { children: SpanNode[] }
+
 export default function TraceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   
@@ -41,12 +43,12 @@ export default function TraceDetailPage({ params }: { params: Promise<{ id: stri
   }
 
   // Build span hierarchy
-  const spanMap = new Map<string, Span & { children: Span[] }>()
+  const spanMap = new Map<string, SpanNode>()
   trace.spans.forEach(span => {
     spanMap.set(span.span_id, { ...span, children: [] })
   })
   
-  const rootSpans: (Span & { children: Span[] })[] = []
+  const rootSpans: SpanNode[] = []
   trace.spans.forEach(span => {
     const spanNode = spanMap.get(span.span_id)!
     if (span.parent_span_id) {
@@ -118,7 +120,7 @@ function SpanRow({
   traceDurationMs, 
   depth 
 }: { 
-  span: Span & { children: Span[] }
+  span: SpanNode
   traceStartMs: number
   traceDurationMs: number
   depth: number

@@ -35,7 +35,13 @@ cp .env.example .env
 
 Edit `.env` and set SECRET_KEY to a random string.
 
-### 5. Start PostgreSQL
+### 5. Database
+
+SQLite is the default for local development and requires no separate service.
+The application creates `traceforge.db` automatically on startup. To use
+PostgreSQL, set `DATABASE_URL` in `.env` and run the Alembic migrations.
+
+### 6. Start PostgreSQL (optional)
 
 Using Docker:
 ```bash
@@ -47,13 +53,13 @@ docker run --name traceforge-db \\
   -d postgres:15
 ```
 
-### 6. Run migrations
+### 7. Run migrations
 
 ```bash
 alembic upgrade head
 ```
 
-### 7. Start server
+### 8. Start server
 
 ```bash
 uvicorn app.main:app --reload --port 8000

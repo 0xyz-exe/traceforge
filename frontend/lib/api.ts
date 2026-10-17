@@ -8,12 +8,26 @@ export const api = axios.create({
 
 // Add auth token interceptor
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token')
+  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
   return config
 })
+
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (
+      typeof window !== 'undefined' &&
+      error.response?.status === 401 &&
+      window.location.pathname !== '/login'
+    ) {
+      window.location.assign(`/login?returnTo=${encodeURIComponent(window.location.pathname)}`)
+    }
+    return Promise.reject(error)
+  },
+)
 
 // Types
 export interface Service {
@@ -31,6 +45,18 @@ export interface ServiceListResponse {
   total: number
   limit: number
   offset: number
+}
+
+export interface MetricDataPoint {
+  timestamp: string
+  value: number
+}
+
+export interface MetricQueryResponse {
+  metric: string
+  aggregation: string
+  data_points: MetricDataPoint[]
+  unit: string | null
 }
 
 // API functions

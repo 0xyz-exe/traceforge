@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
+from .database import Base, engine
+from . import models
 from .routes import auth, services, ingest, metrics, logs, traces, alerts
 
 app = FastAPI(
@@ -26,6 +28,9 @@ app.include_router(metrics.router, prefix="/api")
 app.include_router(logs.router, prefix="/api")
 app.include_router(traces.router, prefix="/api")
 app.include_router(alerts.router, prefix="/api")
+
+if settings.database_url.startswith("sqlite"):
+    Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def root():

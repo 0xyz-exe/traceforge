@@ -18,7 +18,7 @@ npm install
 cp .env.local.example .env.local
 ```
 
-Default API URL: `http://localhost:8000/api`
+Default API URL: `http://127.0.0.1:8000/api`
 
 ### 4. Start development server
 

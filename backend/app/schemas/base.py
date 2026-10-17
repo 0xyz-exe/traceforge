@@ -19,21 +19,21 @@ class Token(BaseModel):
     token_type: str = "bearer"
     expires_in: int
 
-class UserResponse(BaseModel):
-    id: uuid.UUID
-    email: str
-    full_name: Optional[str]
-    workspace_id: uuid.UUID
-    
-    class Config:
-        from_attributes = True
-
-# Workspace schemas
 class WorkspaceResponse(BaseModel):
     id: uuid.UUID
     name: str
     slug: str
     created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class UserResponse(BaseModel):
+    id: uuid.UUID
+    email: str
+    full_name: Optional[str]
+    workspace_id: uuid.UUID
+    workspace: Optional[WorkspaceResponse] = None
     
     class Config:
         from_attributes = True

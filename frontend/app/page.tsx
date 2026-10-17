@@ -8,6 +8,12 @@ export default function Home() {
       
       <div className="flex gap-4">
         <Link 
+          href="/login"
+          className="px-6 py-3 bg-accent text-white rounded hover:opacity-90"
+        >
+          Sign in
+        </Link>
+        <Link
           href="/services" 
           className="px-6 py-3 bg-accent text-white rounded hover:opacity-90"
         >
