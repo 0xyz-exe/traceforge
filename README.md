@@ -2,30 +2,32 @@
 
 Open-source developer observability platform for monitoring applications, investigating failures, analyzing performance, and managing incidents.
 
-**Status:** In development
+**Status:** Milestone B (Metrics Foundation) - In Progress
 
-## Vision
+## Features (Current)
 
-Help developers answer:
-- Is the application healthy?
-- Which services have errors?
-- How have latency and throughput changed?
-- Which requests are slow?
-- What happened before a failure?
-- Which trace, log, or metric supports a diagnosis?
+✅ **Service Registry**
+- Register services with environment and version
+- Track last telemetry timestamp
+- Health status: healthy, stale, down
 
-## Core Capabilities (Planned)
+✅ **Metrics Ingestion**
+- HTTP endpoint for time-series metrics
+- In-memory storage (7-day retention)
+- Cardinality limits (1000 series max)
+- Timestamp and value validation
 
-1. Service health dashboards
-2. Time-series metrics and custom charts
-3. Structured log ingestion and search
-4. Distributed tracing
-5. Service dependency visualization
-6. Error tracking
-7. Alert rules and history
-8. Incident management
-9. OpenTelemetry integration
-10. Optional AI-assisted investigation
+✅ **Metrics Query**
+- Aggregation: sum, avg, min, max, p50, p95, p99
+- Time-range filtering
+- Label filtering
+
+✅ **Dashboard**
+- Service list with health badges
+- Dark mode UI
+- React Query caching
+
+## Quick Start
 
 ## Repository Structure
 
@@ -44,19 +46,77 @@ Help developers answer:
 - PostgreSQL 15+ (or SQLite for local MVP)
 - Docker (optional)
 
+## Documentation
+
+- [Product Requirements](docs/PRD.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Database Design](docs/DATABASE_DESIGN.md)
+- [API Specification](docs/API.md)
+- [UI/UX Brief](docs/UI_UX_BRIEF.md)
+- [Threat Model](docs/THREAT_MODEL.md)
+
 ## Development Status
 
-Phase 1 (Discovery): In progress
-- Repository audit
-- Product requirements
-- Architecture design
-- UI/UX brief
+### Milestone A: Discovery ✅
+- PRD, architecture, DB design, API spec, threat model, UI/UX brief
+
+### Milestone B: Metrics Foundation (In Progress)
+- [x] Service registry endpoints
+- [x] Metrics ingestion
+- [x] In-memory time-series store
+- [x] Metrics query with aggregation
+- [x] Service health dashboard
+- [ ] End-to-end test
+- [ ] Instrumentation examples
+
+### Milestone C: Logs and Traces
+- Structured log ingestion
+- Log search
+- Trace ingestion and waterfall
+- Cross-telemetry correlation
+
+### Milestone D: Alerting and Incidents
+- Alert rules and evaluation
+- Alert history
+- Incident management
+- Timeline and resolution
+
+### Milestone E: Operational Hardening
+- Retention policies
+- Access control
+- Resource limits
+- E2E tests with Playwright
+
+### Milestone F: Optional AI
+- Provider abstraction
+- Evidence-based incident summaries
+- Prompt injection defenses
+
+## Known Limitations (MVP)
+
+- In-memory metrics (lost on restart)
+- Single-instance deployment
+- No horizontal scaling
+- 7-day retention default
+- API key format not hashed (MVP)
+
+## Security
+
+⚠️ **This is early development. Not production-ready.**
+
+- Change SECRET_KEY in `.env` before any use
+- Use HTTPS in production
+- Never commit `.env` files
+- Review [THREAT_MODEL.md](docs/THREAT_MODEL.md)
 
 ## License
 
 TBD
 
-## Security
+## Contributing
 
-This is early development. Do not use in production.
-Never commit credentials or sensitive telemetry.
+Issues and PRs welcome. Include tests for behavioral changes.
+
+---
+
+**Built with:** FastAPI, Next.js, PostgreSQL, TypeScript, Tailwind CSS
