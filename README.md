@@ -4,6 +4,25 @@ TraceForge is an open-source developer observability dashboard for collecting
 and investigating service metrics, structured logs, traces, alerts, and
 incidents.
 
+Repository: https://github.com/0xyz-exe/traceforge
+
+## Screenshots
+
+### Observability Overview & Service Metrics
+![Observability metrics](docs/screenshots/01_metrics_dashboard.png)
+
+### Distributed Trace Waterfall View
+![Trace waterfall](docs/screenshots/02_trace_waterfall.png)
+
+### Structured Log Search & Ingestion
+![Structured logs](docs/screenshots/03_log_explorer.png)
+
+### Alert Rules & Incident Management
+![Incident management](docs/screenshots/04_incidents.png)
+
+### Authentication
+![Authentication](docs/screenshots/05_login.png)
+
 > **Project status:** Functional local MVP. The project is suitable for local
 > development and evaluation, but it is not production-ready.
 
