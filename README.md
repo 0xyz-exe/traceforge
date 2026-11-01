@@ -8,19 +8,29 @@ Repository: https://github.com/0xyz-exe/traceforge
 
 ## Screenshots
 
-### Observability Overview & Service Metrics
-![Observability metrics](docs/screenshots/01_metrics_dashboard.png)
+### 1. Observability Overview & Service Metrics
+Dashboard telemetri observabilitas sentral menyajikan status kesehatan operasional multi-layanan secara *real-time*, metrik throughput transaksi agregat (14.280 req/menit), grafik latensi P50 hingga P99 (48,2 ms), tabel direktori layanan mikro terdaftar lengkap dengan rincian versi, rasio error rate, serta kartu peringatan insiden kritis aktif yang langsung terhubung ke sistem triase penanganan masalah.
 
-### Distributed Trace Waterfall View
-![Trace waterfall](docs/screenshots/02_trace_waterfall.png)
+![Observability Overview & Service Metrics](docs/screenshots/01_metrics_dashboard.png)
 
-### Structured Log Search & Ingestion
-![Structured logs](docs/screenshots/03_log_explorer.png)
+### 2. Distributed Trace Waterfall View
+Tampilan bagan air terjun (*waterfall view*) penelusuran terdistribusi memetakan dekomposisi eksekusi siklus hidup request dari gateway hingga ke dependensi terdalam, menampilkan ringkasan trace ID, durasi total perambatan (285 ms), status keberhasilan tiap span, serta hierarki visual offset waktu antar-layanan (*checkout-api*, *auth-service*, *inventory-service*, *payment-gateway*, dan *notification-worker*).
 
-### Alert Rules & Incident Management
-![Incident management](docs/screenshots/04_incidents.png)
+![Distributed Trace Waterfall View](docs/screenshots/02_trace_waterfall.png)
 
-### Authentication
+### 3. Structured Log Search & Ingestion
+Antarmuka penjelajah log terstruktur memfasilitasi pencarian dan investigasi log bervolume tinggi dengan filter tingkat keparahan (DEBUG, INFO, WARN, ERROR, CRITICAL), pencarian kata kunci fleksibel, korelasi instan ke trace ID dan span ID terkait, serta panel atribut JSON mendalam untuk mendiagnosis anomali sistem secara presisi.
+
+![Structured Log Search & Ingestion](docs/screenshots/03_log_explorer.png)
+
+### 4. Alert Rules & Incident Management
+Pusat manajemen insiden dan aturan peringatan mengotomatisasi pendeteksian degradasi performa sistem, memantau ambang batas metrik (seperti pembatasan laju 429 pada *payment-gateway*), melacak siklus hidup eskalasi dari status Open, Acknowledged, hingga Resolved, serta mencatat riwayat kronologis investigasi pada linimasa insiden.
+
+![Alert Rules & Incident Management](docs/screenshots/04_incidents.png)
+
+### 5. Authentication
+Gerbang otentikasi berbasis token JWT mengamankan akses ke ruang kerja (*workspace isolation*), mendukung alur masuk terenkripsi dengan proteksi sesi ketat, registrasi akun pengembang baru, serta integrasi manajemen identitas pengguna berbasis standar enkripsi bcrypt.
+
 ![Authentication](docs/screenshots/05_login.png)
 
 > **Project status:** Functional local MVP. The project is suitable for local

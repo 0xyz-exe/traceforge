@@ -3,12 +3,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { tracesApi, Span } from '@/lib/api'
 import Link from 'next/link'
-import { use } from 'react'
 
 type SpanNode = Span & { children: SpanNode[] }
 
-export default function TraceDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function TraceDetailPage({ params }: { params: { id: string } }) {
+  const id = params.id
   
   const { data: trace, isLoading, error } = useQuery({
     queryKey: ['trace', id],
